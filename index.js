@@ -24,36 +24,67 @@ function chooseOperator() {
     return operator;
 }
 
+function chooseNumberOfArguments(operator) {
+    let numberOfArguments = "not a number";
+    while (isNaN(numberOfArguments) || numberOfArguments < 2) {
+        console.log(`How many numbers do you want to ${operator}?`);
+        let input = readline.prompt();
+        numberOfArguments = +input;
+    }
+    return numberOfArguments;
+}
+
+function chooseArgument(argNumber) {
+    let argument = "not a number";
+    while (isNaN(argument)) {
+        console.log(`Please enter number ${argNumber + 1}:`);
+        let input = readline.prompt();
+        argument = +input;
+    }
+    return argument;
+}
+
 console.log('Welcome to the calculator!');
 console.log('==========================');
 
 const operator = chooseOperator();
 
-console.log('Please enter the first number:');
-const secondResponse = readline.prompt();
-const firstNumber = +secondResponse;
+const numberOfArguments = chooseNumberOfArguments(operator);
 
-console.log('Please enter the second number:');
-const firstResponse = readline.prompt();
-const secondNumber = +firstResponse;
+const arguments = [];
+for (let argNumber = 0; argNumber < numberOfArguments; argNumber++) {
+    arguments[argNumber] = chooseArgument(argNumber);
+}
 
 let answer;
 
 switch (operator) {
     case '*':
-        answer = firstNumber * secondNumber;
+        answer = 1;
+        for (let arg of arguments) {
+            answer *= arg;
+        }
         break;
     case '/':
-        answer = firstNumber / secondNumber;
+        answer = arguments[0];
+        for (let argIx = 1; argIx < arguments.length; argIx++) {
+            answer /= arguments[argIx];
+        }
         break;
     case '+':
-        answer = firstNumber + secondNumber;
+        answer = 0;
+        for (let arg of arguments) {
+            answer += arg;
+        }
         break;
     case '-':
-        answer = firstNumber - secondNumber;
+        answer = arguments[0];
+        for (let argIx = 1; argIx < arguments.length; argIx++) {
+            answer -= arguments[argIx];
+        }
         break;
     default:
         answer = '(invalid operator)';
 }
 
-console.log(`${firstNumber} ${operator} ${secondNumber} = ${answer}`);
+console.log(`The answer is: ${answer}`);
