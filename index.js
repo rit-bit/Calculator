@@ -1,10 +1,59 @@
 const readline = require('readline-sync');
 
-console.log('Please enter first input:');
-const response1 = readline.prompt();
+function isOperatorValid(operator) {
+    switch (operator) {
+        case '*':
+        case '/':
+        case '+':
+        case '-':
+            return true;
+        default:
+            return false;
+    }
+}
 
-console.log('Please enter second input:');
-const response2 = readline.prompt();
+function chooseOperator() {
+    console.log('Please enter the operator:');
+    let operator = readline.prompt();
+    let operatorValid = isOperatorValid(operator);
+    while (!operatorValid) {
+        console.log('Please enter a valid operator:');
+        operator = readline.prompt();
+        operatorValid = isOperatorValid(operator);
+    }
+    return operator;
+}
 
-const answer = response1 * response2;
-console.log(`${response1} * ${response2} = ${answer}`);
+console.log('Welcome to the calculator!');
+console.log('==========================');
+
+const operator = chooseOperator();
+
+console.log('Please enter the first number:');
+const secondResponse = readline.prompt();
+const firstNumber = +secondResponse;
+
+console.log('Please enter the second number:');
+const firstResponse = readline.prompt();
+const secondNumber = +firstResponse;
+
+let answer;
+
+switch (operator) {
+    case '*':
+        answer = firstNumber * secondNumber;
+        break;
+    case '/':
+        answer = firstNumber / secondNumber;
+        break;
+    case '+':
+        answer = firstNumber + secondNumber;
+        break;
+    case '-':
+        answer = firstNumber - secondNumber;
+        break;
+    default:
+        answer = '(invalid operator)';
+}
+
+console.log(`${firstNumber} ${operator} ${secondNumber} = ${answer}`);
