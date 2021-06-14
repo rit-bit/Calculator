@@ -18,6 +18,8 @@ while (true) {
         case VOWEL_COUNTING_MODE:
             vowelCounter.performOneVowelCountingOperation();
             break;
+        default:
+            console.log(`${calculationMode} is not a valid mode, please choose a valid mode number.\n`);
     }
 }
 

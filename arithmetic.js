@@ -14,10 +14,13 @@ exports.performOneArithmeticOperation = function() {
 
 function chooseValidOperator() {
     let operator, operatorValid;
-    do {
-        operator = userInput.getStringInput('Please enter the operator:');
+    operator = userInput.getStringInput('Please enter the operator:');
+    operatorValid = isOperatorValid(operator);
+
+    while (!operatorValid) {
+        operator = userInput.getStringInput('Please enter a valid operator (+ or - or * or /):');
         operatorValid = isOperatorValid(operator);
-    } while (!operatorValid);
+    }
     return operator;
 }
 
@@ -35,22 +38,26 @@ function isOperatorValid(operator) {
 
 function chooseNumberOfOperands(operator) {
     let numberOfOperands;
-    do {
-        numberOfOperands = userInput.getNumberInput(`How many numbers do you want to ${operator}? (must be at least 2)`);
-    } while (numberOfOperands < 2);
+    const prompt = `How many numbers do you want to ${operator}? (must be at least 2)`;
+    const errorPrompt = `Please enter a valid number of operands to ${operator} (must be at least 2):`;
+
+    numberOfOperands = userInput.getNumberInput(prompt, errorPrompt, (number => number >= 2));
     return numberOfOperands;
 }
 
 function chooseOperands(numberOfOperands) {
     const operandsArray = [];
+
     for (let operandIx = 0; operandIx < numberOfOperands; operandIx++) {
-        operandsArray[operandIx] = userInput.getNumberInput(`Please enter number ${operandIx + 1}:`);
+        const prompt = `Please enter number ${operandIx + 1}:`;
+        const errorPrompt = `Please enter a valid number for operand number ${operandIx + 1}:`;
+        operandsArray[operandIx] = userInput.getNumberInput(prompt, errorPrompt, function(number) {return true});
     }
     return operandsArray;
 }
 
 function removeAnyZeros(operands) {
-    operands = operands.filter(number => number != 0); // TODO Handle case where operands is reduced to size 0;
+    operands = operands.filter(number => number != 0);
     if (operands.length === 0) {
         throw new DivisionException(`Unable to divide - you did not specify enough non-zero divisors`);
     }
@@ -76,10 +83,10 @@ function operate(operands, operator) {
             };
             break;
         case '/':
+            operands = removeAnyZeros(operands);
             accumulator = function(accumulator, currentValue) {
                 return accumulator / currentValue;
             };
-            operands = removeAnyZeros(operands);
             break;
         case '+':
             accumulator = function(accumulator, currentValue) {

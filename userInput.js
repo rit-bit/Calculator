@@ -7,10 +7,10 @@ function getStringInput(prompt) {
 
 exports.getStringInput = getStringInput;
 
-exports.getNumberInput = function(prompt) {
-    let input;
-    do {
-        input = getStringInput(prompt);
-    } while (isNaN(input));
+exports.getNumberInput = function(prompt, errorPrompt, condition) {
+    let input = getStringInput(prompt);
+    while (isNaN(input) || !condition(+input)) {
+        input = getStringInput(errorPrompt);
+    }
     return +input;
 }
