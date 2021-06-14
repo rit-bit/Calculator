@@ -1,4 +1,4 @@
-const readline = require('readline-sync');
+const userInput = require('./userInput');
 
 exports.performOneArithmeticOperation = function() {
     const operator = chooseValidOperator();
@@ -11,7 +11,8 @@ exports.performOneArithmeticOperation = function() {
 function chooseValidOperator() {
     let operator, operatorValid;
     do {
-        ({operator, operatorValid} = getOperatorInput('Please enter the operator:'));
+        operator = userInput.getStringInput('Please enter the operator:');
+        operatorValid = isOperatorValid(operator);
     } while (!operatorValid);
     return operator;
 }
@@ -28,41 +29,20 @@ function isOperatorValid(operator) {
     }
 }
 
-function getOperatorInput(message) {
-    console.log(message);
-    let operator = readline.prompt();
-    let operatorValid = isOperatorValid(operator);
-    return ({operator, operatorValid});
-}
-
-function getNumberInput(message) {
-    console.log(message);
-    let input = readline.prompt();
-    return +input;
-}
-
 function chooseNumberOfOperands(operator) {
-    let numberOfOperands = "not a number";
-    while (isNaN(numberOfOperands) || numberOfOperands < 2) {
-        numberOfOperands = getNumberInput(`How many numbers do you want to ${operator}? (must be at least 2)`);
-    }
+    let numberOfOperands;
+    do {
+        numberOfOperands = userInput.getNumberInput(`How many numbers do you want to ${operator}? (must be at least 2)`);
+    } while (numberOfOperands < 2);
     return numberOfOperands;
 }
 
 function chooseOperands(numberOfOperands) {
     const operandsArray = [];
     for (let operandIx = 0; operandIx < numberOfOperands; operandIx++) {
-        operandsArray[operandIx] = chooseOperand(operandIx);
+        operandsArray[operandIx] = userInput.getNumberInput(`Please enter number ${operandIx + 1}:`);
     }
     return operandsArray;
-}
-
-function chooseOperand(operandNum) {
-    let operand = "not a number";
-    while (isNaN(operand)) {
-        operand = getNumberInput(`Please enter number ${operandNum + 1}:`);
-    }
-    return operand;
 }
 
 function operate(operands, operator) {

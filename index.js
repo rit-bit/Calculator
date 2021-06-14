@@ -1,14 +1,17 @@
-const readline = require('readline-sync');
 const arithmetic = require('./arithmetic');
 const vowelCounter = require('./vowelCounting');
+const userInput = require('./userInput');
 
 const ARITHMETIC_MODE = '1';
 const VOWEL_COUNTING_MODE = '2';
 
 printWelcomeMessage();
 while (true) {
-    const calcMode = getCalculationMode();
-    switch (calcMode) {
+    const calculationMode = userInput.getStringInput(`Which calculator mode do you want?
+    1. Arithmetic mode
+    2. Vowel counting mode`);
+
+    switch (calculationMode) {
         case ARITHMETIC_MODE:
             arithmetic.performOneArithmeticOperation();
             break;
@@ -17,14 +20,6 @@ while (true) {
             break;
     }
 }
-
-function getCalculationMode() {
-    console.log(`Which calculator mode do you want?
-    1. Arithmetic mode
-    2. Vowel counting mode`);
-    return readline.prompt();
-}
-
 
 function printWelcomeMessage() {
     //console.log('Welcome to the calculator!');

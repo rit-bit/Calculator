@@ -1,13 +1,9 @@
-const readline = require('readline-sync');
+const userInput = require('./userInput');
 
 exports.performOneVowelCountingOperation = function() {
-    const inputString = getInputString().toUpperCase();
-    countVowelsInString(inputString);
-}
-
-function getInputString() {
-    console.log("Please enter a string:");
-    return readline.prompt();
+    const inputString = userInput.getStringInput("Please enter a string:")
+    const upperInputString = inputString.toUpperCase();
+    countVowelsInString(upperInputString);
 }
 
 function countCharacterInString(character, string) {
