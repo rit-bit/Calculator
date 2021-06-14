@@ -1,22 +1,25 @@
 const arithmetic = require('./arithmetic');
-const vowelCounter = require('./vowelCounting');
+const letterCounter = require('./letterCounting');
 const userInput = require('./userInput');
 
 const ARITHMETIC_MODE = '1';
-const VOWEL_COUNTING_MODE = '2';
+const LETTER_COUNTING_MODE = '2';
 
+
+
+letterCounter.initialiseLetterArrays();
 printWelcomeMessage();
 while (true) {
     const calculationMode = userInput.getStringInput(`Which calculator mode do you want?
     1. Arithmetic mode
-    2. Vowel counting mode`);
+    2. Letter counting modes`);
 
     switch (calculationMode) {
         case ARITHMETIC_MODE:
             arithmetic.performOneArithmeticOperation();
             break;
-        case VOWEL_COUNTING_MODE:
-            vowelCounter.performOneVowelCountingOperation();
+        case LETTER_COUNTING_MODE:
+            letterCounter.decideWhichLetterCountingMode();
             break;
         default:
             console.log(`${calculationMode} is not a valid mode, please choose a valid mode number.\n`);
