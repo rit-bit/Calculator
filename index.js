@@ -1,15 +1,29 @@
 const readline = require('readline-sync');
+const arithmetic = require('./arithmetic');
+const vowelCounter = require('./vowelCounting');
+
+const ARITHMETIC_MODE = '1';
+const VOWEL_COUNTING_MODE = '2';
 
 printWelcomeMessage();
 while (true) {
-    const operator = chooseValidOperator();
-    const numberOfOperands = chooseNumberOfOperands(operator);
-    const operands = chooseOperands(numberOfOperands);
-    const answer = operate(operands, operator);
-    console.log(`The answer is: ${answer}\n`);
+    const calcMode = getCalculationMode();
+    switch (calcMode) {
+        case ARITHMETIC_MODE:
+            arithmetic.performOneArithmeticOperation();
+            break;
+        case VOWEL_COUNTING_MODE:
+            vowelCounter.performOneVowelCountingOperation();
+            break;
+    }
 }
 
-
+function getCalculationMode() {
+    console.log(`Which calculator mode do you want?
+    1. Arithmetic mode
+    2. Vowel counting mode`);
+    return readline.prompt();
+}
 
 
 function printWelcomeMessage() {
@@ -29,89 +43,6 @@ function printWelcomeMessage() {
    | $$        /$$$$$$$| $$| $$      | $$  | $$| $$  /$$$$$$$  | $$    | $$$$$$$$| $$  \\__/| $$ \\ $$ \\ $$| $$| $$  \\ $$  /$$$$$$$| $$
    | $$    $$ /$$__  $$| $$| $$      | $$  | $$| $$ /$$__  $$  | $$ /$$| $$_____/| $$      | $$ | $$ | $$| $$| $$  | $$ /$$__  $$| $$
    |  $$$$$$/|  $$$$$$$| $$|  $$$$$$$|  $$$$$$/| $$|  $$$$$$$  |  $$$$/|  $$$$$$$| $$      | $$ | $$ | $$| $$| $$  | $$|  $$$$$$$| $$
-    \\______/  \\_______/|__/ \\_______/ \\______/ |__/ \\_______/   \\___/   \\_______/|__/      |__/ |__/ |__/|__/|__/  |__/ \\_______/|__/`);
-}
-
-function chooseValidOperator() {
-    let operator, operatorValid;
-    ({operator, operatorValid} = getOperatorInput('\nPlease enter the operator:'));
-    while (!operatorValid) {
-        ({operator, operatorValid} = getOperatorInput('\nPlease enter a valid operator:'));
-    }
-    return operator;
-}
-
-function isOperatorValid(operator) {
-    switch (operator) {
-        case '*':
-        case '/':
-        case '+':
-        case '-':
-            return true;
-        default:
-            return false;
-    }
-}
-
-function getOperatorInput(message) {
-    console.log(message);
-    let operator = readline.prompt();
-    let operatorValid = isOperatorValid(operator);
-    console.log(operatorValid);
-    return ({operator, operatorValid});
-}
-
-function getNumberInput(message) {
-    console.log(message);
-    let input = readline.prompt();
-    return +input;
-}
-
-function chooseNumberOfOperands(operator) {
-    let numberOfOperands = "not a number";
-    while (isNaN(numberOfOperands) || numberOfOperands < 2) {
-        numberOfOperands = getNumberInput(`How many numbers do you want to ${operator}?`);
-    }
-    return numberOfOperands;
-}
-
-function chooseOperands(numberOfOperands) {
-    const operandsArray = [];
-    for (let operandIx = 0; operandIx < numberOfOperands; operandIx++) {
-        operandsArray[operandIx] = chooseOperand(operandIx);
-    }
-    return operandsArray;
-}
-
-function chooseOperand(operandNum) {
-    let operand = "not a number";
-    while (isNaN(operand)) {
-        operand = getNumberInput(`Please enter number ${operandNum + 1}:`);
-    }
-    return operand;
-}
-
-function operate(operands, operator) {
-    let answer = operands[0];
-
-    for (let ix = 1; ix < operands.length; ix++) {
-        switch (operator) {
-            case '*':
-                answer *= operands[ix];
-                break;
-            case '/':
-                answer /= operands[ix]; // TODO Handle errors e.g. 2 / 0 = ..?
-                break;
-            case '+':
-                answer += operands[ix];
-                break;
-            case '-':
-                answer -= operands[ix];
-                break;
-            default:
-                answer = '(invalid operator)'; // TODO This should be different
-                break;
-        }
-    }
-    return answer;
+    \\______/  \\_______/|__/ \\_______/ \\______/ |__/ \\_______/   \\___/   \\_______/|__/      |__/ |__/ |__/|__/|__/  |__/ \\_______/|__/
+    `);
 }
