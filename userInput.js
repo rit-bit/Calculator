@@ -12,5 +12,5 @@ exports.getNumberInput = function(prompt) {
     do {
         input = getStringInput(prompt);
     } while (isNaN(input));
-    return input;
+    return +input;
 }

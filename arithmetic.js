@@ -4,8 +4,12 @@ exports.performOneArithmeticOperation = function() {
     const operator = chooseValidOperator();
     const numberOfOperands = chooseNumberOfOperands(operator);
     const operands = chooseOperands(numberOfOperands);
-    const answer = operate(operands, operator);
-    console.log(`The answer is: ${answer}\n`);
+    try {
+        const answer = operate(operands, operator);
+        console.log(`The answer is: ${answer}\n`);
+    } catch (e) {
+        console.log(e.message + '\n');
+    }
 }
 
 function chooseValidOperator() {
@@ -45,24 +49,48 @@ function chooseOperands(numberOfOperands) {
     return operandsArray;
 }
 
-function operate(operands, operator) {
-    let answer = operands[0];
-
-    for (let ix = 1; ix < operands.length; ix++) {
-        switch (operator) {
-            case '*':
-                answer *= operands[ix];
-                break;
-            case '/':
-                answer /= operands[ix]; // TODO Handle 0 division e.g. 2 / 0 = Infinity
-                break;
-            case '+':
-                answer += operands[ix];
-                break;
-            case '-':
-                answer -= operands[ix];
-                break;
-        }
+function removeAnyZeros(operands) {
+    operands = operands.filter(number => number != 0); // TODO Handle case where operands is reduced to size 0;
+    if (operands.length === 0) {
+        throw new DivisionException(`Unable to divide - you did not specify enough non-zero divisors`);
     }
-    return answer;
+    return operands;
+}
+
+function DivisionException(message) {
+    this.message = message;
+    this.name = 'DivisionException';
+}
+
+DivisionException.prototype.toString = function() {
+    return `${this.name}: "${this.message}"`;
+}
+
+function operate(operands, operator) {
+    let accumulator;
+
+    switch (operator) {
+        case '*':
+            accumulator = function(accumulator, currentValue) {
+                return accumulator * currentValue;
+            };
+            break;
+        case '/':
+            accumulator = function(accumulator, currentValue) {
+                return accumulator / currentValue;
+            };
+            operands = removeAnyZeros(operands);
+            break;
+        case '+':
+            accumulator = function(accumulator, currentValue) {
+                return accumulator + currentValue;
+            };
+            break;
+        case '-':
+            accumulator = function(accumulator, currentValue) {
+                return accumulator - currentValue;
+            };
+            break;
+    }
+    return operands.reduce(accumulator);
 }

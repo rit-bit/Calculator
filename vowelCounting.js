@@ -17,12 +17,12 @@ function countCharacterInString(character, string) {
 }
 
 function countVowelsInString(inputString) {
-    const vowelCount = new vowelCounter(inputString);
+    const vowelCount = new VowelCounter(inputString);
     vowelCount.printResults();
     console.log(); // Leave new line for clarity
 }
 
-function vowelCounter(string) {
+function VowelCounter(string) {
     const vowels = ['A', 'E', 'I', 'O', 'U'];
     for (let vowel of vowels) {
         this[vowel] = countCharacterInString(vowel, string);
