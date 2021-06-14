@@ -1,9 +1,11 @@
 const readline = require('readline-sync');
 
-exports.getStringInput = function(prompt) {
+function getStringInput(prompt) {
     console.log(prompt);
     return readline.prompt();
 }
+
+exports.getStringInput = getStringInput;
 
 exports.getNumberInput = function(prompt) {
     let input;
