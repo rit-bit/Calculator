@@ -1,7 +1,8 @@
 const readline = require('readline-sync');
+const arithmetic = require('./arithmetic');
 
 function getStringInput(prompt) {
-    console.log(prompt);
+    console.log("\n" + prompt);
     return readline.prompt();
 }
 
@@ -13,4 +14,14 @@ exports.getNumberInput = function(prompt, errorPrompt, condition) {
         input = getStringInput(errorPrompt);
     }
     return +input;
+}
+
+exports.countCharacterInString = function(string, character) {
+    let count = 0;
+    for (let i = 0; i < string.length; i++) {
+        if (string[i] === (character)) {
+            count++;
+        }
+    }
+    return count;
 }

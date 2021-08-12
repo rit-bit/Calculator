@@ -1,11 +1,13 @@
 const arithmetic = require('./arithmetic');
+const equation = require('./equation');
 const letterCounter = require('./letterCounting');
 const userInput = require('./userInput');
 
 const ARITHMETIC_MODE = '1';
 const LETTER_COUNTING_MODE = '2';
 
-
+const SINGLE_OPERATOR_MODE = '1';
+const EQUATION_MODE = '2';
 
 letterCounter.initialiseLetterArrays();
 printWelcomeMessage();
@@ -16,13 +18,13 @@ while (true) {
 
     switch (calculationMode) {
         case ARITHMETIC_MODE:
-            arithmetic.performOneArithmeticOperation();
+            decideWhichArithmeticMode();
             break;
         case LETTER_COUNTING_MODE:
             letterCounter.decideWhichLetterCountingMode();
             break;
         default:
-            console.log(`${calculationMode} is not a valid mode, please choose a valid mode number.\n`);
+            console.log(`${calculationMode} is not a valid mode, please choose a valid mode number.`);
     }
 }
 
@@ -45,4 +47,21 @@ function printWelcomeMessage() {
    |  $$$$$$/|  $$$$$$$| $$|  $$$$$$$|  $$$$$$/| $$|  $$$$$$$  |  $$$$/|  $$$$$$$| $$      | $$ | $$ | $$| $$| $$  | $$|  $$$$$$$| $$
     \\______/  \\_______/|__/ \\_______/ \\______/ |__/ \\_______/   \\___/   \\_______/|__/      |__/ |__/ |__/|__/|__/  |__/ \\_______/|__/
     `);
+}
+
+function decideWhichArithmeticMode() {
+    const arithmeticMode = userInput.getStringInput(`Which arithmetic mode do you want?
+    1. Single operator mode
+    2. Equation mode`);
+
+    switch (arithmeticMode) {
+        case SINGLE_OPERATOR_MODE:
+            arithmetic.performOneArithmeticOperation();
+            break;
+        case EQUATION_MODE:
+            equation.performOneEquationOperation();
+            break;
+        default:
+            console.log(`${arithmeticMode} is not a valid mode, please choose a valid mode number.`);
+    }
 }

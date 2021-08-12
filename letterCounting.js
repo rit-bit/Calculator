@@ -56,7 +56,7 @@ exports.decideWhichLetterCountingMode = function() {
 }
 
 function getCustomLetters() {
-    letterInput = userInput.getStringInput(`Please enter the letters you would like to count, all on one line:`);
+    letterInput = userInput.getStringInput(`Please enter the letters/digits you would like to count, all on one line:`);
     letters = [];
     for (let i = 0; i < letterInput.length; i++) {
         const c = letterInput.charAt(i).toUpperCase();
