@@ -81,6 +81,7 @@ ArithmeticException.prototype.toString = function() {
 function operate(operands, operator) {
     let accumulator;
     for (let operand of operands) {
+        console.log(`operand ${operand}`);
         if (isNaN(operand)) {
             throw new ArithmeticException(`"${operand}" is not a valid operand.`);
         }

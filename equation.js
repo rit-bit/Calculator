@@ -1,12 +1,11 @@
 const userInput = require('./userInput');
 const arithmetic = require('./arithmetic');
 
-const OPERATORS_ONE_ARG = ['!'];
-const OPERATORS_TWO_ARGS = ['^', '/', '*', '+', '-'];
+const MODIFIERS = ['!', '%'];
+const OPERATORS = ['^', '/', '*', '+', '-'];
 
-const OPERATORS = OPERATORS_TWO_ARGS.concat(OPERATORS_ONE_ARG);
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-const LOGIC = ['.', ' ', '(', ')', '%'];
+const LOGIC = ['.', ' ', '(', ')'];
 
 
 // TODO Tidy up code, refactor for clarity, break it down into more functions if necessary
@@ -50,14 +49,14 @@ function validateInput(input) {
     for (let i = 0; i < input.length; i++) {
         const char = input[i];
         if (!isValidCharacter(char)) {
-            throw new EquationException(`Equation cannot contain "${char}", it can only contain digits, operators, spaces and brackets. Valid operators are: ${OPERATORS.join(" ")}`); // TODO Elaborate on valid chars? Create a "?" command that lists all valid operators?
+            throw new EquationException(`Equation cannot contain "${char}", it can only contain digits, operators, spaces and brackets. Valid operators are: ${OPERATORS.join(" ")}`);
         }
         if (char === `(`) {
             openBracketsCount++;
         } else if (char === `)`) {
             closeBracketsCount++;
         }
-        if (!operatorFound && OPERATORS.includes(char)) {
+        if (!operatorFound && (OPERATORS.includes(char) || char === "!")) { // Equation must contain at least one of [+ - * / ^ !] but may not only contain % as sole operator
             operatorFound = true;
         }
     }
@@ -71,7 +70,7 @@ function validateInput(input) {
 }
 
 function isValidCharacter(char) {
-    return OPERATORS.includes(char) || DIGITS.includes(char) || LOGIC.includes(char);
+    return OPERATORS.includes(char) || MODIFIERS.includes(char) || DIGITS.includes(char) || LOGIC.includes(char);
 }
 
 function evaluateEquationBracketsFirst(equation) {
@@ -112,35 +111,53 @@ function evaluateEquation(equation) {
     let parts = splitInputIntoParts(equation);
     // console.log(`parts are ${parts}`);
 
-    // parts = checkForPlusOrMinusXPercent(parts); // TODO Remove this (it does not abide by order of operations)
+    parts = evaluateEquationForModifier(parts, "!");
 
-    for (let operator of OPERATORS_ONE_ARG) {
-        parts = evaluateEquationForOperator(parts, operator, 1);
-    }
-    for (let operator of OPERATORS_TWO_ARGS) {
-        parts = evaluateEquationForOperator(parts, operator, 2);
+    for (let operator of OPERATORS) {
+        parts = evaluateEquationForOperator(parts, operator);
     }
 
     if (parts.length === 1) {
         return parts[0];
     }
+    console.log(`parts ${parts}`);
     throw new EquationException(`An unknown error occurred and the equation could not be solved. Please try entering it again, and consider using more brackets to make it clearer.`);
 }
 
-function evaluateEquationForOperator(equationParts, operator, numberOfArgs) {
-    // console.log(`evaluating equation "${equationParts}" for ${operator}:`);
+function evaluateEquationForModifier(equationParts, modifier) {
+    // console.log(`evaluating equation ${equationParts} for ${modifier}:`);
+    const numberOfArgs = 1;
+    for (let modifierIndex = 0; modifierIndex < equationParts.length; modifierIndex++) {
+        let part = equationParts[modifierIndex];
+        if (typeof part === "string" && part.includes(modifier)) {
+            // console.log(`working on modifierIndex ${modifierIndex}`);
+            part = part.substring(0, part.length - 1);
+            // console.log(`part created as ${part}`);
+            const argNum = +part;
+            // console.log(`argNum created as ${argNum}`);
+            const arg = isNaN(argNum) ? part : argNum
+            // console.log(`arg created as ${arg}`);
+            let result = operateIncludingPercentages([arg], modifier);
+            console.log(`result ${result}`);
+            equationParts.splice(modifierIndex, numberOfArgs, result);
+        }
+    }
+    return equationParts;
+}
+
+function evaluateEquationForOperator(equationParts, operator) {
+    const numberOfArgs = 2;
+    console.log(`evaluating equation "${equationParts}" for ${operator}:`);
     while (equationParts.includes(operator)) {
         const operatorIndex = equationParts.indexOf(operator);
         const arg1 = equationParts[operatorIndex - 1];
+        const arg2 = equationParts[operatorIndex + 1];
         const arg1AsNum = +arg1;
+        const arg2AsNum = +arg2;
         const args = [];
         args.push(isNaN(arg1AsNum) ? arg1 : arg1AsNum);
-        if (numberOfArgs === 2) {
-            const arg2 = equationParts[operatorIndex + 1];
-            const arg2AsNum = +arg2;
-            // console.log(`arg is ${arg2}, argAsNum is ${arg2AsNum}`);
-            args.push(isNaN(arg2AsNum) ? arg2 : arg2AsNum);
-        }
+        args.push(isNaN(arg2AsNum) ? arg2 : arg2AsNum);
+        
         // console.log(`before adjusting for percentages, args: ${args}`);
         // let {newArgs, resultWillBePercent, newOperator} = adjustForPercentages(args, operator);
         // console.log(`after adjusting for percentages, newArgs: ${newArgs}`);
@@ -159,6 +176,7 @@ function evaluateEquationForOperator(equationParts, operator, numberOfArgs) {
 }
 
 function operateIncludingPercentages(args, operator) {
+    // console.log(`oip args ${args}`);
     let arg1 = args[0];
     let arg1Value = arithmetic.isValidPercentage(arg1);
     const isArg1Percent = arg1Value !== false;
@@ -172,7 +190,7 @@ function operateIncludingPercentages(args, operator) {
     if (operator === "+" || operator === "-") {
         if (isArg1Percent) {
             if (isArg2Percent) { // A% + B% = C%    e.g. 12% + 3% = 15%
-                //result = arithmetic.operate([arg1Value, arg2Value], operator);
+                //result = arithmetic.operate([arg1Value, arg2Value], operator); // TODO Remove
                 result = addOrSubtractXPercent(arg1Value * 100, arg2Value, operator);
                 return result + "%";
             } else { // A% + B = C      e.g. 12% + 1.2 = 1.32
@@ -180,7 +198,7 @@ function operateIncludingPercentages(args, operator) {
             }
         } else {
             if (isArg2Percent) { // A + B% = C    e.g. 16 + 25% = 20
-                return addOrSubtractXPercent(arg1, arg2Value, operator); // TODODODODODODODODODODODODODODODODODODODODODODODODODODODODODODODODODODODO
+                return addOrSubtractXPercent(arg1, arg2Value, operator);
             } else { // A + B = C    e.g. 16 + 25 = 41
                 return arithmetic.operate(args, operator);
             }
@@ -240,9 +258,10 @@ function splitInputIntoParts(input) {
             input = input.substring(1);
 
         } else {
+            const prevPart = parts[parts.length - 1];
             if (numberCount <= operatorCount) {
                 // console.log(`Looking for a number...`);
-                let {shortenedInput, number} = readNumberFromBeginningOfInput(input);
+                let {shortenedInput, number} = readNumberFromBeginningOfInput(input, prevPart);
                 input = shortenedInput;
                 parts.push(number);
                 numberCount++;
@@ -255,31 +274,35 @@ function splitInputIntoParts(input) {
             }
         }
     }
-
+    const lastPart = parts[parts.length - 1];
+    if (OPERATORS.includes(lastPart)) {
+        throw new EquationException(`Equation cannot end with "${lastPart}".`);
+    }
     return parts;
 }
 
-function readNumberFromBeginningOfInput(input) {
+function readNumberFromBeginningOfInput(input, prevPart) {
     let number = input.charAt(0);
     if (isNaN(number) && number !== "-") {
-        throw new EquationException(`"${number}" is an invalid character for a number.`); // TODO Improve this error message?
+        throw new EquationException(`You cannot have the two operators "${prevPart}" and "${number}" adjacent to each other.`);
     }
     input = input.substring(1);
 
     while (input.length > 0) {
         const nextDigit = input.charAt(0);
-        if (isNaN(nextDigit) && nextDigit !== "%" && nextDigit !== ".") {
+        if (isNaN(nextDigit) && nextDigit !== "%" && nextDigit !== "." && nextDigit !== "!") {
             break;
         }
         number += nextDigit;
         input = input.substring(1);
     }
-    let numberSansPercent = number;
-    if (number.charAt(number.length - 1) === "%") {
-        numberSansPercent = number.substring(0, number.length - 2);
+    let numberWithoutModifier = number;
+    const lastChar = number.charAt(number.length - 1);
+    if (lastChar === "%" || lastChar === "!") {
+        numberWithoutModifier = number.substring(0, number.length - 2);
     }
-    if (isNaN(numberSansPercent)) { // TODO This does not allow for numbers ending in "%"
-        throw new EquationException(`"${numberSansPercent}" is not a valid number.`); // TODO Improve this error message?
+    if (isNaN(numberWithoutModifier)) {
+        throw new EquationException(`"${numberWithoutModifier}" is not a valid number.`);
     }
     
     const shortenedInput = input; // Input has already been shortened before returning
@@ -289,7 +312,7 @@ function readNumberFromBeginningOfInput(input) {
 function readOperatorFromBeginningOfInput(input) {
     const operator = input.charAt(0);
     if (!OPERATORS.includes(operator)) {
-        throw new EquationException(`"${operator}" is not a valid operator.`); // TODO Improve this error message?
+        throw new EquationException(`"${operator}" is not a valid operator. Valid operators are: ${OPERATORS.join(" ")}`);
     }
     const shortenedInput = input.substring(1);
     return {shortenedInput, operator};
